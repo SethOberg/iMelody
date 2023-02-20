@@ -1,8 +1,10 @@
 package com.example.iMelody.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class Customer {
     private int id;
     private String firstName;
