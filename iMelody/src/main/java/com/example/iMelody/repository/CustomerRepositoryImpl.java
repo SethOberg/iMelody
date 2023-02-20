@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,12 +20,64 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
     @Override
     public List<Customer> getAll() {
-        return null;
+        ArrayList<Customer> customers = new ArrayList<>();
+        try(var connection = DriverManager.getConnection(url, username, password)){
+            String getAllCustomersQuery = "SELECT customer_id, first_name, last_name, country, postal_code, phone, email FROM customer";
+            PreparedStatement statement = connection.prepareStatement(getAllCustomersQuery);
+            var resultSet = statement.executeQuery();
+            while (resultSet.next()){
+                customers.add(new Customer(resultSet.getInt("customer_id"), resultSet.getString("first_name"),
+                        resultSet.getString("last_name"), resultSet.getString("country"),
+                        resultSet.getString("postal_code"), resultSet.getString("phone"),
+                        resultSet.getString("email")));
+            }
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+            return customers;
     }
 
     @Override
     public Customer getById(int id) {
-        return null;
+        Customer customer = null;
+        try(var connection = DriverManager.getConnection(url, username, password)){
+            String getCustomerByIdQuery = "SELECT customer_id, first_name, last_name, country, postal_code, phone, email FROM customer WHERE customer_id = ?";
+
+            PreparedStatement statement = connection.prepareStatement(getCustomerByIdQuery);
+            statement.setInt(1, id);
+            var resultSet = statement.executeQuery();
+            while (resultSet.next()){
+                customer = new Customer(resultSet.getInt("customer_id"), resultSet.getString("first_name"),
+                        resultSet.getString("last_name"), resultSet.getString("country"),
+                        resultSet.getString("postal_code"), resultSet.getString("phone"),
+                        resultSet.getString("email"));
+            }
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return customer;
+    }
+
+    @Override
+    public Customer getByName(String firstName, String lastName) {
+        Customer customer = null;
+        try(var connection = DriverManager.getConnection(url, username, password)){
+            String getCustomerByNameQuery = "SELECT customer_id, first_name, last_name, country, postal_code, phone, email FROM customer WHERE first_name LIKE ? AND last_name LIKE ?";
+            PreparedStatement statement = connection.prepareStatement(getCustomerByNameQuery);
+            statement.setString(1, "%" + firstName + "%");
+            statement.setString(2, "%" + lastName + "%");
+
+            var resultSet = statement.executeQuery();
+            while (resultSet.next()){
+                customer = new Customer(resultSet.getInt("customer_id"), resultSet.getString("first_name"),
+                        resultSet.getString("last_name"), resultSet.getString("country"),
+                        resultSet.getString("postal_code"), resultSet.getString("phone"),
+                        resultSet.getString("email"));
+            }
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return customer;
     }
 
     @Override
