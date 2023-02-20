@@ -1,5 +1,6 @@
 package com.example.iMelody;
 
+import com.example.iMelody.models.Customer;
 import com.example.iMelody.repository.CustomerRepositoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -10,7 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class IMelodyApplication implements ApplicationRunner {
 	@Autowired
-	CustomerRepositoryImpl customerRepositoryNew;
+	CustomerRepositoryImpl customerRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(IMelodyApplication.class, args);
@@ -18,6 +19,9 @@ public class IMelodyApplication implements ApplicationRunner {
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
-		customerRepositoryNew.getCustomersByOffsetAndLimit(10, 10);
+		customerRepository.getCustomersByOffsetAndLimit(10, 10);
+		Customer customer = new Customer( 0, "Jane", "Doe", "Sweden", "12345", "0709374826", "jane.doe@mail.com");
+
+		customerRepository.insert(customer);
 	}
 }

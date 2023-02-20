@@ -28,29 +28,26 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     @Override
-    public int insert(Customer object) {
-        String sql = "insert into customer (customer_id, first_name, last_name, country, postal_code, phone, email) " +
-                "values (?, ?, ?, ?, ?, ?, ?)";
-
-        Customer customer = new Customer(500, "Jane", "Doe", "Sweden", "12345", "0709374826", "jane.doe@mail.com");
+    public int insert(Customer customer) {
+        String sql = "insert into customer (first_name, last_name, country, postal_code, phone, email)" +
+                "values (?, ?, ?, ?, ?, ?)";
 
         try(Connection conn = DriverManager.getConnection(url, username, password)) {
             PreparedStatement statement = conn.prepareStatement(sql);
-            statement.setInt(1, customer.getId());
-            statement.setString(2, customer.getFirstName());
-            statement.setString(3, customer.getLastName());
-            statement.setString(4, customer.getCountry());
-            statement.setString(5, customer.getPostalCode());
-            statement.setString(6, customer.getPhoneNumber());
-            statement.setString(7, customer.getEmail());
+            statement.setString(1, customer.getFirstName());
+            statement.setString(2, customer.getLastName());
+            statement.setString(3, customer.getCountry());
+            statement.setString(4, customer.getPostalCode());
+            statement.setString(5, customer.getPhoneNumber());
+            statement.setString(6, customer.getEmail());
 
-            ResultSet rs = statement.executeQuery();
+            return statement.executeUpdate();
 
         } catch(SQLException e) {
             e.printStackTrace();
             return -1;
         }
-        return 1;
+
     }
 
     @Override
