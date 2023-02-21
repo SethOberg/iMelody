@@ -2,6 +2,7 @@ package com.example.iMelody.repository;
 
 import com.example.iMelody.models.Customer;
 import com.example.iMelody.models.CustomerCountry;
+import com.example.iMelody.models.CustomerGenre;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -227,5 +228,35 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         }
 
         return null;
+    }
+
+    @Override
+    public CustomerGenre getMostPopularGenre(Integer id) {
+        CustomerGenre customerGenre = null;
+        ArrayList<String> genreNames = new ArrayList<>();
+        String getMostPopularGenreQuery = "SELECT genre.name, COUNT(*) as genre_count\n" +
+                "FROM invoice\n" +
+                "INNER JOIN customer ON invoice.customer_id = customer.customer_id\n" +
+                "INNER JOIN invoice_line ON invoice.invoice_id = invoice_line.invoice_id\n" +
+                "INNER JOIN track ON track.track_id = invoice_line.track_id\n" +
+                "INNER JOIN genre ON genre.genre_id = track.genre_id\n" +
+                "WHERE customer.customer_id = ?\n" +
+                "GROUP BY genre.name\n" +
+                "ORDER BY genre_count DESC\n" +
+                "FETCH FIRST 1 ROWS WITH TIES;";
+
+        try (var connection = DriverManager.getConnection(url, username, password)){
+            PreparedStatement statement = connection.prepareStatement(getMostPopularGenreQuery);
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
+
+            while (rs.next()){
+                genreNames.add(rs.getString(1));
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return  new CustomerGenre(id, genreNames);
     }
 }
