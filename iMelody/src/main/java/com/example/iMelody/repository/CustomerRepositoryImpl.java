@@ -1,6 +1,7 @@
 package com.example.iMelody.repository;
 
 import com.example.iMelody.models.Customer;
+import com.example.iMelody.models.CustomerCountry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -169,5 +170,26 @@ public class CustomerRepositoryImpl implements CustomerRepository {
                 .forEach((customer) -> System.out.println(customer.getFirstName() + " " + customer.getLastName()));
 
         return customers;
+    }
+
+    @Override
+    public CustomerCountry getCountryWithMostCustomers() {
+        CustomerCountry customerCountry = null;
+        try(var connection = DriverManager.getConnection(url, username, password)){
+            String getCountryWithMostCustomersQuery = "SELECT country, COUNT(*) AS customer_count\n" +
+                    "FROM customer\n" +
+                    "GROUP BY country\n" +
+                    "ORDER BY customer_count DESC\n" +
+                    "LIMIT 1;";
+            PreparedStatement statement = connection.prepareStatement(getCountryWithMostCustomersQuery);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()){
+                customerCountry = new CustomerCountry(resultSet.getString("country"), resultSet.getInt("customer_count"));
+            }
+
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return customerCountry;
     }
 }
