@@ -34,6 +34,7 @@ public class IMelodyApplication implements ApplicationRunner {
 		//customer2.setFirstName("test");
 		//customer2.setLastName("testsson");
 		//customerRepository.update(customer2);
+		//System.out.println(customerRepository.getMostPopularGenre(7));
 
 		//System.out.println(customerRepository.getCountryWithMostCustomers());
 	}
