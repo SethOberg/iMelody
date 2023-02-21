@@ -192,4 +192,40 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         }
         return customerCountry;
     }
+
+    @Override
+    public Customer highestCustomerSpender() {
+        String sql = "select cust.*, sum(iv.total) as total_spending from customer cust\n" +
+                "inner join invoice iv \n" +
+                "on cust.customer_id = iv.customer_id\n" +
+                "group by cust.customer_id\n" +
+                "order by total_spending desc\n" +
+                "fetch first 1 rows only";
+
+        try(var conn = DriverManager.getConnection(url, username, password)) {
+            PreparedStatement statement = conn.prepareStatement(sql);
+
+            ResultSet rs = statement.executeQuery();
+
+            while(rs.next()) {
+                Customer customer = new Customer(
+                        rs.getInt("customer_id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("country"),
+                        rs.getString("postal_code"),
+                        rs.getString("phone"),
+                        rs.getString("email")
+                );
+
+                return customer;
+            }
+
+        } catch(SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return null;
+    }
 }

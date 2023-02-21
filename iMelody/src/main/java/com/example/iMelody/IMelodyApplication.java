@@ -36,5 +36,8 @@ public class IMelodyApplication implements ApplicationRunner {
 		//customerRepository.update(customer2);
 
 		//System.out.println(customerRepository.getCountryWithMostCustomers());
+
+		//Customer cust = customerRepository.highestCustomerSpender();
+		//System.out.println(String.format("Highest spender: %s %s", cust.getFirstName(), cust.getLastName()));
 	}
 }
