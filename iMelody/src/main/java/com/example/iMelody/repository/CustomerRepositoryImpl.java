@@ -1,6 +1,8 @@
 package com.example.iMelody.repository;
 
 import com.example.iMelody.models.Customer;
+import com.example.iMelody.models.CustomerCountry;
+import com.example.iMelody.models.CustomerGenre;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -169,5 +171,92 @@ public class CustomerRepositoryImpl implements CustomerRepository {
                 .forEach((customer) -> System.out.println(customer.getFirstName() + " " + customer.getLastName()));
 
         return customers;
+    }
+
+    @Override
+    public CustomerCountry getCountryWithMostCustomers() {
+        CustomerCountry customerCountry = null;
+        try(var connection = DriverManager.getConnection(url, username, password)){
+            String getCountryWithMostCustomersQuery = "SELECT country, COUNT(*) AS customer_count\n" +
+                    "FROM customer\n" +
+                    "GROUP BY country\n" +
+                    "ORDER BY customer_count DESC\n" +
+                    "LIMIT 1;";
+            PreparedStatement statement = connection.prepareStatement(getCountryWithMostCustomersQuery);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()){
+                customerCountry = new CustomerCountry(resultSet.getString("country"), resultSet.getInt("customer_count"));
+            }
+
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return customerCountry;
+    }
+
+    @Override
+    public Customer highestCustomerSpender() {
+        String sql = "select cust.*, sum(iv.total) as total_spending from customer cust\n" +
+                "inner join invoice iv \n" +
+                "on cust.customer_id = iv.customer_id\n" +
+                "group by cust.customer_id\n" +
+                "order by total_spending desc\n" +
+                "fetch first 1 rows only";
+
+        try(var conn = DriverManager.getConnection(url, username, password)) {
+            PreparedStatement statement = conn.prepareStatement(sql);
+
+            ResultSet rs = statement.executeQuery();
+
+            while(rs.next()) {
+                Customer customer = new Customer(
+                        rs.getInt("customer_id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("country"),
+                        rs.getString("postal_code"),
+                        rs.getString("phone"),
+                        rs.getString("email")
+                );
+
+                return customer;
+            }
+
+        } catch(SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return null;
+    }
+
+    @Override
+    public CustomerGenre getMostPopularGenre(Integer id) {
+        CustomerGenre customerGenre = null;
+        ArrayList<String> genreNames = new ArrayList<>();
+        String getMostPopularGenreQuery = "SELECT genre.name, COUNT(*) as genre_count\n" +
+                "FROM invoice\n" +
+                "INNER JOIN customer ON invoice.customer_id = customer.customer_id\n" +
+                "INNER JOIN invoice_line ON invoice.invoice_id = invoice_line.invoice_id\n" +
+                "INNER JOIN track ON track.track_id = invoice_line.track_id\n" +
+                "INNER JOIN genre ON genre.genre_id = track.genre_id\n" +
+                "WHERE customer.customer_id = ?\n" +
+                "GROUP BY genre.name\n" +
+                "ORDER BY genre_count DESC\n" +
+                "FETCH FIRST 1 ROWS WITH TIES;";
+
+        try (var connection = DriverManager.getConnection(url, username, password)){
+            PreparedStatement statement = connection.prepareStatement(getMostPopularGenreQuery);
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
+
+            while (rs.next()){
+                genreNames.add(rs.getString(1));
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return  new CustomerGenre(id, genreNames);
     }
 }
