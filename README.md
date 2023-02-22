@@ -15,7 +15,6 @@ This is a Java prototype for a media player similar to iTunes called iMelody. It
 
 ## Technologies
 * Java 17
-* Spring Data JPA
 * Lombok 
 * PostgreSQL
 
