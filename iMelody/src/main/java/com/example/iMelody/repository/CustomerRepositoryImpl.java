@@ -20,6 +20,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     @Value("${spring.datasource.password}")
     private String password;
 
+    /**
+     * Retrieves all the customers in the database. If no customers are available, an empty list will be returned
+     * @params none
+     * @return List<Customer>
+     */
     @Override
     public List<Customer> getAll() {
         ArrayList<Customer> customers = new ArrayList<>();
@@ -39,6 +44,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
             return customers;
     }
 
+    /**
+     * Retrieves a customer based on the given id
+     * @param id
+     * @return Customer
+     */
     @Override
     public Customer getById(int id) {
         Customer customer = null;
@@ -60,6 +70,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         return customer;
     }
 
+    /**
+     * Returns a Customer based on first and last name.
+     * @param firstName
+     * @param lastName
+     * @return Customer
+     */
     @Override
     public Customer getByName(String firstName, String lastName) {
         Customer customer = null;
@@ -82,6 +98,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         return customer;
     }
 
+    /**
+     * Adds a new customer to the database. If adding customer fails, -1 will be returned else 1 or 2.
+     * @param customer
+     * @return Int
+     */
     @Override
     public int insert(Customer customer) {
         String sql = "insert into customer (first_name, last_name, country, postal_code, phone, email)" +
@@ -103,6 +124,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
             return -1;
         }
     }
+
+    /**
+     * Updates an existing customer. If updating customer fails, 0 will be returned else 1 or 2.
+     * @param customer
+     * @return Int
+     */
 
     @Override
     public int update(Customer customer) {
@@ -138,6 +165,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         return 0;
     }
 
+    /**
+     * Returns a list of customer, limited based on offset and limit values.
+     * @param offset
+     * @param limit
+     * @return List<Customer>
+     */
     @Override
     public List<Customer> getCustomersByOffsetAndLimit(int offset, int limit) {
         String sql = "select * from customer offset ? limit ?";
@@ -173,6 +206,10 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         return customers;
     }
 
+    /**
+     * Retrieves a list with the most customers. If fails SQLException message will be printed.
+     * @return CustomerCountry
+     */
     @Override
     public CustomerCountry getCountryWithMostCustomers() {
         CustomerCountry customerCountry = null;
@@ -194,6 +231,10 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         return customerCountry;
     }
 
+    /**
+     * Retrieves the customer with the highest spending.
+     * @return Customer
+     */
     @Override
     public Customer highestCustomerSpender() {
         String sql = "select cust.*, sum(iv.total) as total_spending from customer cust\n" +
@@ -230,6 +271,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         return null;
     }
 
+    /**
+     * Retrieves the most popular genre for a specific user.
+     * @param id
+     * @return CustomerGenre
+     */
     @Override
     public CustomerGenre getMostPopularGenre(Integer id) {
         CustomerGenre customerGenre = null;
